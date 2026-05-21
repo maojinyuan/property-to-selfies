@@ -1,0 +1,32 @@
+{
+  "csv_path": "/home/adminstrator/Desktop/PI1M_with_features.csv",
+  "selfies_column": "SELFIES",
+  "property_columns": null,
+  "molwt_column": "MolWt",
+  "max_length": 160,
+  "batch_size": 64,
+  "epochs": 10,
+  "learning_rate": 0.0003,
+  "weight_decay": 0.01,
+  "train_fraction": 0.9,
+  "seed": 42,
+  "num_workers": 2,
+  "model": {
+    "d_model": 256,
+    "n_heads": 8,
+    "n_layers": 6,
+    "dim_feedforward": 1024,
+    "dropout": 0.1,
+    "num_property_tokens": 4
+  },
+  "tokenizer": {
+    "source": "hf",
+    "hf_repo_id": "mikemayuare/SELFYAPE",
+    "hf_filename": "tokenizer.json",
+    "local_path": "outputs/tokenizers/selfyape/tokenizer.json",
+    "trained_path": "outputs/tokenizers/pi1m_ape/tokenizer.json",
+    "max_vocab_size": 5000,
+    "min_freq_for_merge": 50
+  },
+  "output_dir": "outputs/runs/baseline"
+}
