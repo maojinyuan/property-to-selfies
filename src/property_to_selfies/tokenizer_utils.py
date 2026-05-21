@@ -12,10 +12,19 @@ def load_hf_or_local_tokenizer(
     hf_repo_id: str,
     hf_filename: str,
     local_path: str | Path,
+    hf_local_path: str | Path | None = None,
 ) -> APETokenizer:
     target = Path(local_path)
     if target.exists():
         return APETokenizer.from_pretrained(target)
+
+    if hf_local_path is not None:
+        local_hf_file = Path(hf_local_path)
+        if local_hf_file.exists():
+            tokenizer = APETokenizer.from_pretrained(local_hf_file)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            tokenizer.save_vocabulary(target)
+            return tokenizer
 
     target.parent.mkdir(parents=True, exist_ok=True)
     downloaded = hf_hub_download(repo_id=hf_repo_id, filename=hf_filename)

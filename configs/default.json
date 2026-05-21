@@ -23,6 +23,7 @@
     "source": "hf",
     "hf_repo_id": "mikemayuare/SELFYAPE",
     "hf_filename": "tokenizer.json",
+    "hf_local_path": "external/SELFYAPE/tokenizer.json",
     "local_path": "outputs/tokenizers/selfyape/tokenizer.json",
     "trained_path": "outputs/tokenizers/pi1m_ape/tokenizer.json",
     "max_vocab_size": 5000,

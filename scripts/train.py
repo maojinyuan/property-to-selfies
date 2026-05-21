@@ -41,6 +41,7 @@ def load_tokenizer(cfg: dict) -> APETokenizer:
             tok_cfg["hf_repo_id"],
             tok_cfg["hf_filename"],
             tok_cfg["local_path"],
+            tok_cfg.get("hf_local_path"),
         )
     return APETokenizer.from_pretrained(tok_cfg["trained_path"])
 
