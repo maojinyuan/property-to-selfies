@@ -10,10 +10,12 @@ prepare tokenizer -> train conditional generator -> generate SELFIES from proper
 
 ## Data Contract
 
-Default input file:
+The training data is configured by `csv_path` in `configs/default.json`. Set it to the CSV file on your machine before preparing the tokenizer or training.
 
-```text
-/home/adminstrator/Desktop/PI1M_with_features.csv
+Example:
+
+```json
+"csv_path": "/path/to/PI1M_with_features.csv"
 ```
 
 Expected columns:
@@ -56,11 +58,14 @@ external/                 optional local external assets, such as downloaded tok
 ## Setup
 
 ```bash
-cd ~/Desktop/property-to-selfies
+git clone <your-repo-url>
+cd property-to-selfies
 python -m venv .venv
 source .venv/bin/activate
 pip install -e .
 ```
+
+Then edit `configs/default.json` and set `csv_path` to your local `PI1M_with_features.csv` path.
 
 ## 1. Prepare Tokenizer
 
@@ -128,10 +133,10 @@ The model learns this mapping:
 
 The model conditions on the property values by converting them into learned property tokens and prepending those embeddings before the SELFIES token sequence. Training then uses standard next-token prediction loss.
 
-The default data source is configured in `configs/default.json`:
+The data source is configured in `configs/default.json`:
 
 ```json
-"csv_path": "/home/adminstrator/Desktop/PI1M_with_features.csv"
+"csv_path": "/path/to/PI1M_with_features.csv"
 ```
 
 By default, `property_columns` is `null`, so the loader uses the last 15 columns in the CSV as property columns. `MolWt` is rounded to the nearest integer before scaling.
