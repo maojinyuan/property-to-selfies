@@ -25,6 +25,12 @@ from property_to_selfies.ape_tokenizer import APETokenizer
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default="configs/default.json")
+    parser.add_argument(
+        "--tokenizer-source",
+        choices=["hf", "train"],
+        default=None,
+        help="Override tokenizer.source from the config for this run.",
+    )
     return parser.parse_args()
 
 
@@ -72,6 +78,8 @@ def run_epoch(model, loader, optimizer, device, train: bool) -> float:
 def main() -> None:
     args = parse_args()
     cfg = load_config(args.config)
+    if args.tokenizer_source is not None:
+        cfg["tokenizer"]["source"] = args.tokenizer_source
     set_seed(cfg["seed"])
 
     output_dir = Path(cfg["output_dir"])

@@ -23,14 +23,20 @@ def main() -> None:
     tok_cfg = cfg["tokenizer"]
     source = args.source or tok_cfg["source"]
 
+    print(f"loading data from {cfg['csv_path']}", flush=True)
     data = load_property_data(
         cfg["csv_path"],
         selfies_column=cfg["selfies_column"],
         property_columns=cfg["property_columns"],
         molwt_column=cfg["molwt_column"],
     )
+    print(
+        f"loaded {len(data.selfies)} SELFIES; found {len(data.property_columns)} property columns for config validation",
+        flush=True,
+    )
 
     if source == "hf":
+        print(f"loading Hugging Face tokenizer {tok_cfg['hf_repo_id']}", flush=True)
         tokenizer = load_hf_or_local_tokenizer(
             tok_cfg["hf_repo_id"],
             tok_cfg["hf_filename"],
@@ -39,15 +45,24 @@ def main() -> None:
         )
         output_path = Path(tok_cfg["local_path"])
     else:
+        print(
+            "training APE tokenizer "
+            f"(max_vocab_size={tok_cfg['max_vocab_size']}, "
+            f"min_freq_for_merge={tok_cfg['min_freq_for_merge']})",
+            flush=True,
+        )
         tokenizer = APETokenizer()
         tokenizer.train(
             data.selfies,
             max_vocab_size=tok_cfg["max_vocab_size"],
             min_freq_for_merge=tok_cfg["min_freq_for_merge"],
+            show_progress=True,
         )
         output_path = Path(tok_cfg["trained_path"])
+        print(f"saving tokenizer to {output_path}", flush=True)
         tokenizer.save_vocabulary(output_path)
 
+    print("running tokenizer diagnostics", flush=True)
     report = diagnose_tokenizer(tokenizer, data.selfies, max_length=cfg["max_length"])
     report_path = output_path.with_name("diagnostics.json")
     with report_path.open("w", encoding="utf-8") as f:

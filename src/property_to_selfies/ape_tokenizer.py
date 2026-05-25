@@ -5,6 +5,8 @@ import re
 from collections import Counter
 from pathlib import Path
 
+from tqdm import tqdm
+
 
 class APETokenizer:
     def __init__(
@@ -70,37 +72,50 @@ class APETokenizer:
         corpus: list[str],
         max_vocab_size: int = 5000,
         min_freq_for_merge: int = 50,
+        show_progress: bool = False,
     ) -> None:
         sequences = [self.pre_tokenize(text) for text in corpus]
         token_counts = Counter(token for seq in sequences for token in seq)
 
-        while len(self.special_tokens) + len(token_counts) < max_vocab_size:
-            pair_counts: Counter[tuple[str, str]] = Counter()
-            for seq in sequences:
-                pair_counts.update(zip(seq, seq[1:]))
-            if not pair_counts:
-                break
+        max_merges = max(0, max_vocab_size - len(self.special_tokens) - len(token_counts))
+        progress = tqdm(
+            total=max_merges,
+            desc="training tokenizer merges",
+            unit="merge",
+            disable=not show_progress or max_merges == 0,
+        )
+        try:
+            while len(self.special_tokens) + len(token_counts) < max_vocab_size:
+                pair_counts: Counter[tuple[str, str]] = Counter()
+                for seq in sequences:
+                    pair_counts.update(zip(seq, seq[1:]))
+                if not pair_counts:
+                    break
 
-            (left, right), freq = pair_counts.most_common(1)[0]
-            if freq < min_freq_for_merge:
-                break
+                (left, right), freq = pair_counts.most_common(1)[0]
+                if freq < min_freq_for_merge:
+                    break
 
-            merged = left + right
-            new_sequences: list[list[str]] = []
-            for seq in sequences:
-                merged_seq: list[str] = []
-                i = 0
-                while i < len(seq):
-                    if i + 1 < len(seq) and seq[i] == left and seq[i + 1] == right:
-                        merged_seq.append(merged)
-                        i += 2
-                    else:
-                        merged_seq.append(seq[i])
-                        i += 1
-                new_sequences.append(merged_seq)
+                merged = left + right
+                new_sequences: list[list[str]] = []
+                for seq in sequences:
+                    merged_seq: list[str] = []
+                    i = 0
+                    while i < len(seq):
+                        if i + 1 < len(seq) and seq[i] == left and seq[i + 1] == right:
+                            merged_seq.append(merged)
+                            i += 2
+                        else:
+                            merged_seq.append(seq[i])
+                            i += 1
+                    new_sequences.append(merged_seq)
 
-            sequences = new_sequences
-            token_counts[merged] = freq
+                sequences = new_sequences
+                token_counts[merged] = freq
+                progress.update(1)
+                progress.set_postfix(vocab=len(self.special_tokens) + len(token_counts), freq=freq)
+        finally:
+            progress.close()
 
         self.vocabulary_frequency = dict(token_counts)
         self.vocabulary = dict(self.special_tokens)

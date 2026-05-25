@@ -123,6 +123,13 @@ If the Hugging Face tokenizer has a low `<unk>` ratio on your data, keep it as t
 python scripts/train.py --config configs/default.json
 ```
 
+Override the tokenizer source for a single run without editing `configs/default.json`:
+
+```bash
+python scripts/train.py --config configs/default.json --tokenizer-source train
+python scripts/train.py --config configs/default.json --tokenizer-source hf
+```
+
 `scripts/train.py` trains the actual SELFIES generator. It is not a tokenizer training script.
 
 The model learns this mapping:
